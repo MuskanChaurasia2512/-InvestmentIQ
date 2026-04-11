@@ -469,10 +469,10 @@ const EditProfile = ({ user, onBack, onSave }) => {
                   onFocus={e => e.target.style.borderColor = 'rgba(99,102,241,0.6)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 >
-                  <option value="" style={{ background: '#1a1a2e' }}>Select Gender</option>
-                  <option value="male" style={{ background: '#1a1a2e' }}>Male</option>
-                  <option value="female" style={{ background: '#1a1a2e' }}>Female</option>
-                  <option value="other" style={{ background: '#1a1a2e' }}>Other / Prefer not to say</option>
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other / Prefer not to say</option>
                 </select>
                 <div style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }}>▼</div>
               </div>

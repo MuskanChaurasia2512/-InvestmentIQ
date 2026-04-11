@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const Auth = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ email: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ const Auth = ({ onLogin }) => {
 
     try {
       const endpoint = isLogin ? '/api/login' : '/api/signup';
-      const payload = { email: formData.email.trim() };
+      const payload = isLogin ? { email: formData.email.trim(), password: formData.password } : formData;
       const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
       
       // Requirement 7: Return success message after login
@@ -69,6 +69,15 @@ const Auth = ({ onLogin }) => {
         )}
 
         <form onSubmit={handleSubmit} className="grid-cols" style={{ gap: '1.25rem' }}>
+          {!isLogin && (
+            <div className="input-group">
+              <label>Full Name</label>
+              <div className="input-wrapper">
+                <User size={18} color="var(--text-muted)" />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Theo" required />
+              </div>
+            </div>
+          )}
           <div className="input-group">
             <label>Email Address</label>
             <div className="input-wrapper">
@@ -79,6 +88,20 @@ const Auth = ({ onLogin }) => {
                 value={formData.email} 
                 onChange={handleChange} 
                 placeholder="theo@example.com" 
+                required 
+              />
+            </div>
+          </div>
+          <div className="input-group">
+            <label>Password</label>
+            <div className="input-wrapper">
+              <Lock size={18} color="var(--text-muted)" />
+              <input 
+                type="password" 
+                name="password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                placeholder="••••••••" 
                 required 
               />
             </div>

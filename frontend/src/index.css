@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
+  color-scheme: dark;
   --primary: #6366f1;
   --secondary: #94a3b8;
   --bg-dark: #020617;
@@ -112,4 +113,18 @@ h1, h2, h3 {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Form Overrides for Dark Theme Options */
+select option {
+  background-color: #020617; /* Fallback direct color */
+  background-color: var(--bg-dark);
+  color: #f8fafc;
+  padding: 10px;
+}
+
+select {
+  background-color: #020617; /* Required for Chrome Windows */
+  background-color: var(--bg-dark);
+  color: var(--text-main);
 }

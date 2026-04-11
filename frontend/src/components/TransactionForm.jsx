@@ -91,18 +91,25 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
       left: 0,
       width: '100%',
       height: '100%',
-      background: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 1000
+      background: 'rgba(0, 0, 0, 0.75)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '2rem'
     }}>
       <div style={{
-        background: 'var(--glass)',
-        borderRadius: '16px',
-        width: '90%',
-        maxWidth: '600px',
+        background: '#0f172a',
+        borderRadius: '24px',
+        width: '100%',
+        maxWidth: '550px',
         maxHeight: '90vh',
         overflowY: 'auto',
         position: 'relative',
-        border: '1px solid var(--border)'
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        animation: 'modalFadeIn 0.3s ease-out'
       }}>
         {/* Header */}
         <div style={{
@@ -146,6 +153,17 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
           </button>
         </div>
 
+        <style>{`
+          @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .custom-input:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+          }
+        `}</style>
+
         {/* Form Content */}
         <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
           {/* Stock Search */}
@@ -177,18 +195,20 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem 0.75rem 3rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   appearance: 'none',
                   outline: 'none',
                   cursor: 'pointer',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               >
-                <option value="" style={{ background: 'var(--glass)' }}>Search and select stock...</option>
+                <option value="">Search and select stock...</option>
                 {growwStocks.map((stock, idx) => (
-                  <option key={idx} value={stock.symbol} style={{ background: 'var(--glass)' }}>
+                  <option key={idx} value={stock.symbol}>
                     {stock.symbol} - {stock.name}
                   </option>
                 ))}
@@ -221,17 +241,19 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   appearance: 'none',
                   outline: 'none',
                   cursor: 'pointer',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               >
-                <option value="buy" style={{ background: 'var(--glass)' }}>Buy</option>
-                <option value="sell" style={{ background: 'var(--glass)' }}>Sell</option>
+                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
               </select>
             </div>
             <div>
@@ -249,12 +271,14 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   outline: 'none',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               />
             </div>
           </div>
@@ -274,18 +298,20 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   appearance: 'none',
                   outline: 'none',
                   cursor: 'pointer',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               >
-                <option value="" style={{ background: 'var(--glass)' }}>Select sector...</option>
+                <option value="">Select sector...</option>
                 {sectorOptions.map((sector, idx) => (
-                  <option key={idx} value={sector} style={{ background: 'var(--glass)' }}>{sector}</option>
+                  <option key={idx} value={sector}>{sector}</option>
                 ))}
               </select>
             </div>
@@ -305,12 +331,14 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   outline: 'none',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               />
             </div>
           </div>
@@ -334,12 +362,14 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   outline: 'none',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               />
             </div>
             <div>
@@ -358,12 +388,14 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: 'var(--glass-hover)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   outline: 'none',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               />
             </div>
             <div>
@@ -387,13 +419,15 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.875rem',
-                  background: loadingPrice ? 'var(--glass)' : 'var(--glass-hover)',
+                  background: loadingPrice ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.05)',
                   outline: 'none',
                   cursor: loadingPrice ? 'not-allowed' : 'text',
-                  color: 'white'
+                  color: 'white',
+                  transition: 'all 0.2s'
                 }}
+                className="custom-input"
               />
             </div>
           </div>
@@ -427,20 +461,27 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
           {/* Submit Button */}
           <button 
             type="submit" 
-            style={{
-              width: '100%',
-              padding: '1rem',
-              background: 'var(--primary)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'background 0.2s'
-            }}
-            onMouseOver={(e) => e.target.style.background = 'var(--primary-hover)'}
-            onMouseOut={(e) => e.target.style.background = 'var(--primary)'}
+              style={{
+                width: '100%',
+                padding: '1rem',
+                background: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = '#4f46e5';
+                e.target.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = 'var(--primary)';
+                e.target.style.transform = 'translateY(0)';
+              }}
           >
             Add Investment
           </button>

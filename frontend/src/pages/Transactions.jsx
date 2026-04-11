@@ -153,7 +153,7 @@ const Transactions = ({ token }) => {
             }}
           >
             {filterOptions.map(option => (
-              <option key={option.value} value={option.value} style={{ background: 'var(--glass)' }}>
+              <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
