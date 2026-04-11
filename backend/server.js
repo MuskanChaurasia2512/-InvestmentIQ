@@ -3,8 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
-
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI).then(async () => {
@@ -25,7 +25,6 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
   mobile: String,
   pan: String,
   dob: String,
@@ -117,45 +116,52 @@ async function sendWelcomeEmail(toEmail, userName) {
 const authRoutes = express.Router();
 const transactionRoutes = express.Router();
 
-// Auth Routes
-authRoutes.post('/register', async (req, res) => {
+// Auth Routes (Global endpoints per requirements)
+app.post('/api/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email } = req.body;
     
+    // Format validation is usually frontend, but server-side safety checks
     let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ msg: 'User already exists' });
+    if (user) return res.status(400).json({ msg: 'Email already registered. Please Login.' });
     
-    user = new User({ name, email, password });
+    user = new User({ name: name || 'User', email });
     await user.save();
     
-    sendWelcomeEmail(email, name);
-    res.json({ token: 'token_' + user._id, user: { id: user._id, name: user.name, email: user.email } });
+    sendWelcomeEmail(email, user.name);
+    
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Server error during signup' });
   }
 });
 
-authRoutes.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email } = req.body;
     
-    const user = await User.findOne({ email, password });
-    if (!user) return res.status(400).json({ msg: 'Invalid Credentials' });
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ msg: 'Email not found! Please check or sign up first.' });
     
-    res.json({ token: 'token_' + user._id, user: { id: user._id, name: user.name, email: user.email } });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    
+    // Return explicit success message as requested
+    res.json({ msg: 'Login fully successful', token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Server error during login' });
   }
 });
 
-// Update profile
+// Update profile uses Authroutes router still
 authRoutes.put('/profile', async (req, res) => {
   try {
     const authHeader = req.header('Authorization');
     if (!authHeader) return res.status(401).json({ msg: 'No token' });
 
     const token = authHeader.replace('Bearer ', '');
-    const userId = token.replace('token_', '');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
     
     const user = await User.findById(userId);
     if (!user) return res.status(401).json({ msg: 'Invalid token' });
@@ -184,7 +190,8 @@ const authMiddleware = async (req, res, next) => {
     if (!authHeader) return res.status(401).json({ msg: 'No token, authorization denied' });
     
     const token = authHeader.replace('Bearer ', '');
-    const userId = token.replace('token_', '');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
     
     if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(401).json({ msg: 'Token is not valid' });
     
@@ -278,13 +285,13 @@ app.get('/api/health', (req, res) => {
 app.post('/api/test-login', async (req, res) => {
   const demoUser = await User.findOne({ email: 'demo@groww.com' });
   if (demoUser) {
-    const token = 'token_' + demoUser._id;
+    const token = jwt.sign({ id: demoUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ 
       token, 
       user: { id: demoUser._id, name: demoUser.name, email: demoUser.email } 
     });
   } else {
-    res.status(400).json({ msg: 'Demo user not found' });
+    res.status(404).json({ msg: 'Demo user not found' });
   }
 });
 
@@ -410,9 +417,9 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('MongoDB connection initializing...');
   console.log('Available endpoints:');
-  console.log('  POST /api/auth/register');
-  console.log('  POST /api/auth/login');
-  console.log('  POST /api/test-login (direct login bypass)');
+  console.log('  POST /api/signup');
+  console.log('  POST /api/login');
+  console.log('  POST /api/test-login (JWT bypass)');
   console.log('  GET, POST /api/transactions');
   console.log('  PUT, DELETE /api/transactions/:id');
   console.log('  GET /api/ai/suggestions');

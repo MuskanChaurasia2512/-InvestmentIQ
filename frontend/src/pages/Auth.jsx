@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const Auth = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -15,14 +15,25 @@ const Auth = ({ onLogin }) => {
     setError(null);
     setLoading(true);
 
+    // Strict Email Regex Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email format.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const payload = isLogin ? { email: formData.email, password: formData.password } : formData;
+      const endpoint = isLogin ? '/api/login' : '/api/signup';
+      const payload = { email: formData.email.trim() };
       const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
       
-      // Pass both token AND user info (name, email) to App
+      // Requirement 7: Return success message after login
+      alert(isLogin ? "Success: " + res.data.msg : "Account Created Successfully!");
+      
       onLogin(res.data.token, res.data.user);
     } catch (err) {
+      // Requirement 10: Show error if email not found
       setError(err.response?.data?.msg || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
@@ -58,32 +69,23 @@ const Auth = ({ onLogin }) => {
         )}
 
         <form onSubmit={handleSubmit} className="grid-cols" style={{ gap: '1.25rem' }}>
-          {!isLogin && (
-            <div className="input-group">
-              <label>Full Name</label>
-              <div className="input-wrapper">
-                <User size={18} />
-                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Theo" required />
-              </div>
-            </div>
-          )}
           <div className="input-group">
             <label>Email Address</label>
             <div className="input-wrapper">
-              <Mail size={18} />
-              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="theo@example.com" required />
-            </div>
-          </div>
-          <div className="input-group">
-            <label>Password</label>
-            <div className="input-wrapper">
-              <Lock size={18} />
-              <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
+              <Mail size={18} color="var(--text-muted)" />
+              <input 
+                type="email" 
+                name="email" 
+                value={formData.email} 
+                onChange={handleChange} 
+                placeholder="theo@example.com" 
+                required 
+              />
             </div>
           </div>
 
           <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
