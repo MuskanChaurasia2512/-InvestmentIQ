@@ -17,7 +17,7 @@ import {
   Globe
 } from 'lucide-react';
 
-const DetailedProfile = ({ onLogout, user }) => {
+const DetailedProfile = ({ user }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({

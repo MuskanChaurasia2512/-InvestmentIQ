@@ -6,12 +6,14 @@ import {
   History, 
   Settings, 
   LogOut,
-  Target
+  Target,
+  Newspaper
 } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab }) => {
+const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'news', icon: Newspaper, label: 'News' },
     { id: 'portfolio', icon: Briefcase, label: 'Portfolio' },
     { id: 'transactions', icon: History, label: 'Transactions' },
     { id: 'analytics', icon: TrendingUp, label: 'Analytics' },
@@ -20,68 +22,98 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <div className="sidebar glass-card" style={{ 
+    <div className="sidebar-container" style={{ 
       height: 'calc(100vh - 2rem)', 
-      width: '240px', 
+      width: '80px', 
       margin: '1rem',
       position: 'fixed',
       left: 0,
       display: 'flex',
       flexDirection: 'column',
-      zIndex: 100
+      alignItems: 'center',
+      zIndex: 100,
+      background: 'var(--bg-card)',
+      borderRadius: '24px',
+      border: '1px solid var(--border)',
+      boxShadow: '10px 0 30px rgba(0,0,0,0.5)',
+      transition: 'all 0.3s ease'
     }}>
-      <div className="logo flex-center" style={{ padding: '2rem 0', gap: '0.5rem' }}>
+      <div className="sidebar-logo-container" style={{ padding: '2rem 0', display: 'flex', justifyContent: 'center' }}>
         <div style={{ 
-          width: '32px', 
-          height: '32px', 
-          background: 'var(--primary)', 
-          borderRadius: '8px',
+          width: '45px', 
+          height: '45px', 
+          background: 'linear-gradient(135deg, var(--primary), #a78bfa)', 
+          borderRadius: '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 0 15px rgba(99, 102, 241, 0.5)'
+          boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)',
+          cursor: 'pointer'
         }}>
-          <TrendingUp size={20} color="white" />
+          <TrendingUp size={24} color="white" />
         </div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>SmartInvest</h2>
       </div>
 
-      <nav style={{ flex: 1, padding: '0 1rem' }}>
+      <nav className="sidebar-nav" aria-label="Main Navigation" style={{ flex: 1, padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
         {menuItems.map((item) => (
           <div
             key={item.id}
             onClick={() => setActiveTab(item.id)}
+            className="sidebar-item"
+            title={item.label}
+            aria-label={`Go to ${item.label}`}
+            role="button"
             style={{
-              padding: '0.75rem 1rem',
-              margin: '0.5rem 0',
-              borderRadius: '12px',
+              width: '50px',
+              height: '50px',
+              borderRadius: '16px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              transition: 'all 0.2s ease',
-              background: activeTab === item.id ? 'var(--glass-hover)' : 'transparent',
+              justifyContent: 'center',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              background: activeTab === item.id ? 'rgba(139, 92, 246, 0.15)' : 'transparent',
               color: activeTab === item.id ? 'var(--primary)' : 'var(--text-muted)',
-              border: activeTab === item.id ? '1px solid var(--border)' : '1px solid transparent'
+              border: activeTab === item.id ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid transparent'
+            }}
+            onMouseOver={(e) => {
+              if (activeTab !== item.id) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                e.currentTarget.style.color = 'white';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (activeTab !== item.id) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }
             }}
           >
-            <item.icon size={20} />
-            <span style={{ fontWeight: 500 }}>{item.label}</span>
+            <item.icon size={22} />
           </div>
         ))}
       </nav>
 
-      <div style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
-        <div style={{ 
-          padding: '0.75rem 1rem', 
+      <div className="sidebar-logout-container" style={{ paddingBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+        <div 
+          onClick={onLogout}
+          title="Logout"
+          style={{ 
+          width: '50px',
+          height: '50px',
+          borderRadius: '16px',
           display: 'flex', 
           alignItems: 'center', 
-          gap: '12px', 
+          justifyContent: 'center',
           color: 'var(--danger)',
-          cursor: 'pointer'
-        }}>
-          <LogOut size={20} />
-          <span>Logout</span>
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          background: 'rgba(239, 68, 68, 0.05)'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'}
+        >
+          <LogOut size={22} />
         </div>
       </div>
     </div>

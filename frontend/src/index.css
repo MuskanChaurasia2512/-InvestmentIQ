@@ -2,19 +2,65 @@
 
 :root {
   color-scheme: dark;
-  --primary: #6366f1;
+  --bg-dark: #0B0E14;
+  --bg-card: #1A1D24;
+  --primary: #8b5cf6;
   --secondary: #94a3b8;
-  --bg-dark: #020617;
-  --bg-card: rgba(15, 23, 42, 0.7);
   --accent: #10b981;
   --danger: #f43f5e;
   --warning: #f59e0b;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --glass: rgba(26, 29, 36, 0.7);
+  --glass-hover: rgba(35, 40, 50, 0.8);
   font-family: 'Outfit', sans-serif;
+}
+
+/* Light Mode Overrides */
+.light-mode {
+  --bg-dark: #f1f5f9;
+  --bg-card: #ffffff;
+  --primary: #6366f1;
+  --secondary: #64748b;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border: rgba(0, 0, 0, 0.1);
+  --glass: rgba(255, 255, 255, 0.8);
+  --glass-hover: rgba(255, 255, 255, 1);
+}
+
+/* Force dark text on hardcoded white inline styles */
+.light-mode [style*="color: white"],
+.light-mode [style*="color: #fff"] {
+  color: var(--text-main) !important;
+}
+
+/* Force light backgrounds on hardcoded transparent white styles */
+.light-mode [style*="background: rgba(255, 255, 255"],
+.light-mode [style*="background: rgba(255,255,255"],
+.light-mode [style*="background-color: rgba(255,255,255"] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Fix hardcoded borders */
+.light-mode [style*="border: 1px solid rgba(255,255,255"] {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Fix background gradient for header panels */
+.light-mode [style*="linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%)"] {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(240,244,248,1) 100%) !important;
+}
+
+/* Fix dropdown menu backgrounds */
+.light-mode option {
+  background: #ffffff !important;
+  color: var(--text-main) !important;
+}
+.light-mode select {
+  background: #ffffff !important;
+  color: var(--text-main) !important;
 }
 
 * {
@@ -85,10 +131,25 @@ body {
   gap: 1.5rem;
 }
 
+/* Responsive Grid Utility Classes */
+.grid-responsive-2, .grid-responsive-3, .grid-responsive-4, .grid-responsive-sidebar-content {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr; /* Default Mobile: Stack vertically */
+}
+
 @media (min-width: 768px) {
   .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
   .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
   .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  
+  .grid-responsive-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-responsive-sidebar-content { grid-template-columns: 1fr 350px; }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-responsive-4 { grid-template-columns: repeat(4, 1fr); }
 }
 
 .flex-center {
@@ -115,16 +176,118 @@ h1, h2, h3 {
   -webkit-text-fill-color: transparent;
 }
 
-/* Form Overrides for Dark Theme Options */
-select option {
-  background-color: #020617; /* Fallback direct color */
-  background-color: var(--bg-dark);
-  color: #f8fafc;
-  padding: 10px;
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-select {
-  background-color: #020617; /* Required for Chrome Windows */
-  background-color: var(--bg-dark);
-  color: var(--text-main);
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Glassmorphism Section Headers */
+.section-header {
+  background: var(--glass);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 20px 20px 0 0;
+}
+
+/* Scrollbar Hide for charts */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Horizontally Scrollable Tables Container */
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-container table {
+  min-width: 600px; /* Force minimum width to prevent squishing */
+}
+
+/* --- Mobile Specific Overrides & Animations --- */
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  
+  .glass-mobile {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+  }
+
+  /* Responsive App Layout */
+  .app-main-content {
+    margin-left: 0 !important;
+    padding: 1rem 1rem 90px 1rem !important; /* Bottom padding for mobile nav */
+  }
+
+
+  /* Chatbot adjustments */
+  .chatbot-fab {
+    bottom: 90px !important; /* Above bottom nav */
+    right: 1.5rem !important;
+    width: 50px !important;
+    height: 50px !important;
+  }
+  /* Sidebar to Bottom Nav */
+  .sidebar-container {
+    height: 70px !important;
+    width: calc(100% - 2rem) !important;
+    bottom: 1rem !important;
+    left: 1rem !important;
+    margin: 0 !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    padding: 0 1rem !important;
+    border-radius: 20px !important;
+  }
+
+  .sidebar-logo-container {
+    display: none !important;
+  }
+
+  .sidebar-nav {
+    flex-direction: row !important;
+    padding: 0 !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .sidebar-logout-container {
+    display: none !important; /* Hide logout from bottom nav, keep in profile */
+  }
+
+  .sidebar-item {
+    width: 45px !important;
+    height: 45px !important;
+  }
 }

@@ -9,14 +9,17 @@ const InsightCard = ({ type, title, message, color }) => {
   else if (type === 'health') Icon = ShieldCheck;
 
   return (
-    <div className="flex-center" style={{ 
-      gap: '1rem', 
+    <div style={{ 
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '0.75rem', 
       padding: '1rem', 
-      background: 'var(--glass)', 
+      background: 'rgba(255, 255, 255, 0.03)', 
       borderRadius: '12px',
       borderLeft: `4px solid ${color}`,
       marginBottom: '1rem',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+      width: '100%',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
     }}>
       <div style={{ 
         width: '40px', 

@@ -13,7 +13,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
-const UserProfile = ({ onLogout, user }) => {
+const UserProfile = ({ user }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({

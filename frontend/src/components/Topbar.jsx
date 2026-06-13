@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Search, LogOut } from 'lucide-react';
 
 const Topbar = ({ onLogout, user, setActiveTab }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Extract first name from full name
   const firstName = user?.name ? user.name.trim().split(' ')[0] : 'User';
   const avatarLetter = firstName.charAt(0).toUpperCase();
@@ -13,36 +23,64 @@ const Topbar = ({ onLogout, user, setActiveTab }) => {
       return saved ? JSON.parse(saved).profileImage || null : null;
     } catch { return null; }
   };
-  const savedProfileImage = getSavedImage();
+  
+  const [savedProfileImage, setSavedProfileImage] = useState(getSavedImage());
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setSavedProfileImage(getSavedImage());
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, []);
 
   return (
-    <header className="flex-between" style={{ 
-      padding: '1.5rem 2rem',
-      marginLeft: '280px',
+    <header className="app-main-content" style={{ 
+      padding: isScrolled ? '1rem 2rem' : '1.5rem 2rem',
+      marginLeft: '80px',
       position: 'sticky',
       top: 0,
-      zIndex: 90
+      zIndex: 90,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      background: isScrolled ? 'rgba(15, 23, 42, 0.75)' : 'transparent',
+      backdropFilter: isScrolled ? 'blur(16px)' : 'none',
+      borderBottom: isScrolled ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+      boxShadow: isScrolled ? '0 10px 30px -10px rgba(0, 0, 0, 0.3)' : 'none',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
-      <div>
-        <h1 className="text-gradient">Portfolio Overview</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-          Hello, <span style={{ color: '#a78bfa', fontWeight: 600 }}>{firstName}</span> 👋 &nbsp;Welcome back!
+      <div style={{ flex: 1 }}>
+        <h1 style={{ 
+          fontSize: '1.25rem',
+          fontWeight: '700',
+          background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          color: 'white',
+          margin: 0
+        }}>InvestIQ</h1>
+        <p className="hide-on-mobile" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+          Hello, <span style={{ color: '#a78bfa', fontWeight: 600 }}>{firstName}</span> 👋
         </p>
       </div>
 
-      <div className="flex-center" style={{ gap: '1.5rem' }}>
-        <div className="glass-card" style={{ 
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div className="hide-on-mobile" style={{ 
           padding: '0.5rem 1rem', 
           display: 'flex', 
           alignItems: 'center', 
           gap: '10px',
-          width: '300px',
-          borderRadius: '12px'
+          width: '250px',
+          borderRadius: '12px',
+          background: 'var(--glass)',
+          border: '1px solid var(--border)'
         }}>
-          <Search size={18} color="var(--text-muted)" />
+          <Search size={18} color="var(--text-muted)" aria-hidden="true" />
           <input 
             type="text" 
-            placeholder="Search stocks, sectors..." 
+            placeholder="Search..." 
+            aria-label="Search stocks or sectors"
             style={{ 
               background: 'transparent', 
               border: 'none', 
@@ -53,11 +91,11 @@ const Topbar = ({ onLogout, user, setActiveTab }) => {
           />
         </div>
 
-        <div className="flex-center" style={{ gap: '1rem' }}>
-          <div className="glass-card" style={{ padding: '0.5rem', borderRadius: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '0.5rem', borderRadius: '10px', background: 'var(--glass)', border: '1px solid var(--border)' }}>
             <Bell size={20} color="var(--text-muted)" />
           </div>
-          <div className="flex-center" style={{ gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {/* Avatar with user's first letter */}
             <div 
               style={{ 
@@ -82,7 +120,7 @@ const Topbar = ({ onLogout, user, setActiveTab }) => {
               onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
               {savedProfileImage ? (
-                <img src={savedProfileImage} alt={avatarLetter} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={savedProfileImage} alt={`${user?.name || 'User'} profile avatar`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 avatarLetter
               )}
@@ -104,9 +142,15 @@ const Topbar = ({ onLogout, user, setActiveTab }) => {
             </span>
             {onLogout && (
               <button 
-                className="btn" 
                 onClick={onLogout}
-                style={{ background: 'transparent', border: '1px solid var(--border)', padding: '8px', display: 'flex', alignItems: 'center' }}
+                style={{ 
+                  background: 'transparent', 
+                  border: '1px solid var(--border)', 
+                  padding: '8px', 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  cursor: 'pointer'
+                }}
                 title="Log out"
               >
                 <LogOut size={16} color="var(--danger)" />

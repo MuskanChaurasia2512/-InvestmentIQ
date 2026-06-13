@@ -5,15 +5,7 @@ export const usePortfolio = (token) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      fetchTransactions();
-    } else {
-      setTransactions([]);
-    }
-  }, [token]);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get('http://localhost:5000/api/transactions', {
@@ -32,7 +24,15 @@ export const usePortfolio = (token) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchTransactions();
+    } else {
+      setTransactions([]);
+    }
+  }, [token, fetchTransactions]);
 
   const addTransaction = async (newTx) => {
     try {
@@ -44,6 +44,30 @@ export const usePortfolio = (token) => {
       setTransactions(prev => [formattedTx, ...prev]);
     } catch (err) {
       console.error('Error adding transaction', err);
+    }
+  };
+
+  const updateTransaction = async (id, updatedTx) => {
+    try {
+      const res = await axios.put(`http://localhost:5000/api/transactions/${id}`, updatedTx, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = res.data;
+      const formattedTx = { ...data, id: data._id, symbol: data.stockSymbol, name: data.companyName };
+      setTransactions(prev => prev.map(tx => tx.id === id ? formattedTx : tx));
+    } catch (err) {
+      console.error('Error updating transaction', err);
+    }
+  };
+
+  const deleteTransaction = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/transactions/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTransactions(prev => prev.filter(tx => tx.id !== id));
+    } catch (err) {
+      console.error('Error deleting transaction', err);
     }
   };
 
@@ -69,6 +93,8 @@ export const usePortfolio = (token) => {
   return {
     transactions,
     addTransaction,
+    updateTransaction,
+    deleteTransaction,
     calculateStats,
     loading
   };

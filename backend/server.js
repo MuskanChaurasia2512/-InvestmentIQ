@@ -432,9 +432,148 @@ app.get('/api/ai/suggestions', authMiddleware, async (req, res) => {
   }
 });
 
+// Persistent Chatbot AI Endpoint
+app.post('/api/chat', authMiddleware, async (req, res) => {
+  try {
+    const { message, history } = req.body;
+    const userTransactions = await Transaction.find({ userId: req.user.id });
+    
+    // Construct portfolio context
+    const portfolioContext = userTransactions.length === 0 
+      ? 'The user currently has no investments in their portfolio.' 
+      : 'User Portfolio: ' + JSON.stringify(userTransactions.map(t => ({ 
+          symbol: t.stockSymbol, 
+          action: t.type, 
+          qty: t.quantity, 
+          price: t.executionPrice 
+        })));
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("Gemini API key is not configured.");
+
+    const systemPrompt = `You are InvestIQ AI, an experienced and highly professional stock market advisor.
+    CRITICAL INSTRUCTION: You MUST ONLY answer questions related to the stock market, shares, mutual funds, investments, trading, and finance.
+    If the user asks ANYTHING unrelated to the financial markets (e.g., general knowledge, coding, weather, personal chat), you MUST politely refuse to answer and state that you are exclusively a stock market advisor.
+    Your goal is to help the user manage their portfolio, minimize losses, and make data-driven investment decisions.
+    Be concise, professional, and direct.
+    
+    Current User Context:
+    ${portfolioContext}
+    
+    User Query: ${message}`;
+
+    // Convert history format to Gemini format if needed, but for simplicity we can just send the system prompt + history as part of contents
+    const contents = [];
+    if (history && history.length > 0) {
+      history.forEach(msg => {
+        contents.push({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
+      });
+    }
+    contents.push({ role: 'user', parts: [{ text: systemPrompt }] });
+
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        contents,
+        generationConfig: { temperature: 0.7, topP: 0.9 }
+      },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const resultText = response.data.candidates[0].content.parts[0].text;
+    res.json({ response: resultText });
+  } catch (error) {
+    const apiError = error?.response?.data?.error;
+    console.error("Chat API Error:", apiError || error.message);
+    
+    if (apiError && apiError.code === 429) {
+      // Rate limit hit
+      res.status(429).json({ error: "I'm thinking too fast! Google Gemini API rate limit reached. Please wait a few seconds and try again. ⏱️" });
+    } else {
+      res.status(500).json({ error: "Failed to connect to Google Gemini AI. Please check your API key or try again later." });
+    }
+  }
+});
+
+// Portfolio Growth Data
+
+app.get('/api/portfolio/growth', authMiddleware, async (req, res) => {
+  try {
+    const { period } = req.query;
+    const generateData = (days) => {
+      let data = [];
+      let baseValue = 50000;
+      let marketBase = 18000;
+      for (let i = 0; i < days; i++) {
+        baseValue += (Math.random() - 0.45) * 1000;
+        marketBase += (Math.random() - 0.48) * 200;
+        data.push({
+          date: new Date(Date.now() - (days - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+          value: Math.round(baseValue),
+          market: Math.round(marketBase)
+        });
+      }
+      return data;
+    };
+    const days = period === '1D' ? 2 : period === '1W' ? 7 : period === '1M' ? 30 : 365;
+    res.json(generateData(days));
+  } catch (err) {
+    res.status(500).json({ msg: 'Error generating growth data' });
+  }
+});
+
+// Market News Proxy API
+app.get('/api/market-news', async (req, res) => {
+  try {
+    const query = req.query.q || 'India stock market NSE BSE Nifty Sensex';
+    const apiKey = process.env.GNEWS_API_KEY;
+
+    if (apiKey) {
+      const response = await axios.get(
+        `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&country=in&max=12&apikey=${apiKey}`
+      );
+      const articles = (response.data.articles || []).map(a => ({
+        title: a.title,
+        description: a.description,
+        url: a.url,
+        image: a.image,
+        publishedAt: a.publishedAt,
+        source: a.source?.name || 'Market News'
+      }));
+      return res.json({ articles });
+    }
+
+    // Fallback curated news when no API key
+    const fallback = [
+      { title: 'Nifty 50 surges past 24,500; IT and banking stocks lead rally', description: 'Indian benchmark indices closed higher on Friday, driven by strong buying in IT and banking sectors amid positive global cues.', url: 'https://economictimes.indiatimes.com/markets', image: null, publishedAt: new Date().toISOString(), source: 'Economic Times' },
+      { title: 'Sensex jumps 600 points; RIL, HDFC Bank among top gainers', description: 'The BSE Sensex gained over 600 points in early trade today, with Reliance Industries and HDFC Bank emerging as major contributors to the upward movement.', url: 'https://www.livemint.com/market', image: null, publishedAt: new Date(Date.now() - 3600000).toISOString(), source: 'Live Mint' },
+      { title: 'RBI keeps repo rate unchanged at 6.5%; markets react positively', description: 'The Reserve Bank of India maintained the repo rate at 6.5% in its latest monetary policy meeting, citing controlled inflation and stable growth outlook.', url: 'https://www.moneycontrol.com', image: null, publishedAt: new Date(Date.now() - 7200000).toISOString(), source: 'Moneycontrol' },
+      { title: 'FII inflows surge: Foreign investors pump ₹8,500 crore into Indian equities', description: 'Foreign Institutional Investors showed renewed confidence in Indian markets, purchasing equities worth ₹8,500 crore in a single session.', url: 'https://www.business-standard.com/markets', image: null, publishedAt: new Date(Date.now() - 10800000).toISOString(), source: 'Business Standard' },
+      { title: 'Midcap index outperforms large caps; pharma and FMCG stocks shine', description: 'The BSE Midcap index rose 1.2%, outperforming the benchmark Sensex, as pharmaceutical and FMCG companies reported robust quarterly earnings.', url: 'https://economictimes.indiatimes.com/markets/stocks', image: null, publishedAt: new Date(Date.now() - 14400000).toISOString(), source: 'Economic Times' },
+      { title: 'Infosys Q4 results beat estimates; shares climb 4% post earnings', description: 'Infosys reported better-than-expected Q4 FY25 results with net profit rising 12% YoY. The stock surged 4% in intraday trade on the NSE.', url: 'https://www.nseindia.com', image: null, publishedAt: new Date(Date.now() - 18000000).toISOString(), source: 'NSE India' },
+      { title: 'Global markets: Dow Jones, S&P 500 hit record highs overnight', description: 'US markets closed at record highs after strong jobs data, providing positive tailwinds for Asian and Indian markets in early trade.', url: 'https://www.reuters.com/markets', image: null, publishedAt: new Date(Date.now() - 21600000).toISOString(), source: 'Reuters' },
+      { title: 'Auto sector on a roll: Maruti Suzuki sales up 18% MoM in May 2025', description: 'Maruti Suzuki India reported an 18% month-on-month increase in total vehicle sales for May 2025, driven by strong demand for SUVs and compact cars.', url: 'https://www.business-standard.com', image: null, publishedAt: new Date(Date.now() - 25200000).toISOString(), source: 'Business Standard' },
+      { title: 'Gold prices soften as dollar strengthens; equity markets gain', description: 'Gold futures declined as the US dollar gained strength, redirecting investor interest towards equities, particularly in emerging markets like India.', url: 'https://economictimes.indiatimes.com', image: null, publishedAt: new Date(Date.now() - 28800000).toISOString(), source: 'Economic Times' },
+      { title: 'TCS, Wipro see large block deals; institutions accumulate at lower levels', description: 'Large block deals were recorded in TCS and Wipro shares on the NSE, suggesting institutional accumulation ahead of Q1 results season.', url: 'https://www.livemint.com', image: null, publishedAt: new Date(Date.now() - 32400000).toISOString(), source: 'Live Mint' },
+      { title: 'IPO market heats up: 5 new issues to open for subscription this week', description: 'This week will see five new IPO subscriptions opening, with analysts estimating high oversubscription given the current bullish market sentiment.', url: 'https://www.moneycontrol.com/ipo', image: null, publishedAt: new Date(Date.now() - 36000000).toISOString(), source: 'Moneycontrol' },
+      { title: 'Crude oil slides to $78/barrel; energy stocks under pressure globally', description: 'Brent crude oil fell to $78 per barrel amid weak demand data from China, putting pressure on global energy stocks and Indian oil marketing companies.', url: 'https://www.reuters.com/business/energy', image: null, publishedAt: new Date(Date.now() - 39600000).toISOString(), source: 'Reuters' },
+    ];
+    res.json({ articles: fallback, note: 'Set GNEWS_API_KEY in .env for live news' });
+  } catch (error) {
+    console.error('News API error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch news', articles: [] });
+  }
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
+
+// 404 catch-all
+app.use((req, res) => {
+  console.log(`❌ 404: ${req.method} ${req.url}`);
+  res.status(404).json({ error: 'Route not found' });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

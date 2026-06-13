@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { X, PlusCircle, TrendingUp, Search } from 'lucide-react';
 import axios from 'axios';
 
-const TransactionForm = ({ isOpen, onClose, onAdd }) => {
-  const [formData, setFormData] = useState({
+const TransactionForm = ({ onAdd, onUpdate, onClose, initialData }) => {
+  const [formData, setFormData] = useState(initialData || {
     name: '',
     symbol: '',
     sector: '',
@@ -71,12 +71,13 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
     setFormData({ ...formData, sector });
   };
 
-  if (!isOpen) return null;
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd(formData);
-    onClose();
+    if (initialData && initialData.id) {
+      onUpdate(initialData.id, formData);
+    } else {
+      onAdd(formData);
+    }
   };
 
   const handleChange = (e) => {
@@ -132,11 +133,16 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
               <PlusCircle size={20} color="white" />
             </div>
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', margin: 0 }}>Add Investment</h2>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>Start building your portfolio</p>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', margin: 0 }}>
+                {initialData ? 'Edit Investment' : 'Add Investment'}
+              </h2>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>
+                {initialData ? 'Modify your transaction details' : 'Start building your portfolio'}
+              </p>
             </div>
           </div>
           <button 
+            type="button"
             onClick={onClose}
             style={{
               background: 'transparent',
@@ -161,6 +167,10 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
           .custom-input:focus {
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+          }
+          .custom-input option {
+            background-color: #0f172a;
+            color: white;
           }
         `}</style>
 
@@ -483,7 +493,7 @@ const TransactionForm = ({ isOpen, onClose, onAdd }) => {
                 e.target.style.transform = 'translateY(0)';
               }}
           >
-            Add Investment
+            {initialData ? 'Update Investment' : 'Add Investment'}
           </button>
         </form>
       </div>

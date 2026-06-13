@@ -1,18 +1,23 @@
 import React from 'react';
 import { TrendingUp, Target, Award, AlertTriangle } from 'lucide-react';
 
-const Goals = ({ token }) => {
+const Goals = () => {
   return (
-    <div className="goals">
-      <h2 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Investment Goals</h2>
+    <div style={{ padding: '2rem' }}>
+      <h2 style={{ fontSize: '1.5rem', marginBottom: '2rem', color: 'white' }}>Investment Goals</h2>
       
-      <div className="grid-cols grid-cols-2" style={{ marginBottom: '2rem' }}>
-        <div className="glass-card" style={{ padding: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ 
+          background: 'var(--glass)', 
+          borderRadius: '16px', 
+          padding: '2rem',
+          border: '1px solid var(--border)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
             <div style={{ 
               width: '48px', 
               height: '48px', 
-              background: '#10b98115', 
+              background: 'rgba(16, 185, 129, 0.15)', 
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
@@ -21,14 +26,14 @@ const Goals = ({ token }) => {
               <Target size={24} color="#10b981" />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>Retirement Fund</h3>
+              <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'white' }}>Retirement Fund</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Long-term wealth building</p>
             </div>
           </div>
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Target Amount</span>
-              <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>₹1,00,00,000</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white' }}>₹1,00,00,000</span>
             </div>
             <div style={{ height: '8px', background: 'var(--glass)', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
               <div style={{ 
@@ -44,7 +49,7 @@ const Goals = ({ token }) => {
               <span>35% achieved</span>
             </div>
           </div>
-          <div style={{ padding: '1rem', background: 'var(--glass)', borderRadius: '8px', marginTop: '1rem' }}>
+          <div style={{ padding: '1rem', background: 'var(--glass-hover)', borderRadius: '8px', marginTop: '1rem' }}>
             <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
               <strong>Monthly Target:</strong> ₹25,000
             </p>
@@ -54,12 +59,17 @@ const Goals = ({ token }) => {
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '2rem' }}>
+        <div style={{ 
+          background: 'var(--glass)', 
+          borderRadius: '16px', 
+          padding: '2rem',
+          border: '1px solid var(--border)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
             <div style={{ 
               width: '48px', 
               height: '48px', 
-              background: '#6366f115', 
+              background: 'rgba(99, 102, 241, 0.15)', 
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
@@ -68,14 +78,14 @@ const Goals = ({ token }) => {
               <Award size={24} color="#6366f1" />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem' }}>Emergency Fund</h3>
+              <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', color: 'white' }}>Emergency Fund</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>6 months expenses</p>
             </div>
           </div>
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Target Amount</span>
-              <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>₹3,00,000</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white' }}>₹3,00,000</span>
             </div>
             <div style={{ height: '8px', background: 'var(--glass)', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
               <div style={{ 
@@ -99,8 +109,14 @@ const Goals = ({ token }) => {
         </div>
       </div>
 
-      <div className="glass-card" style={{ padding: '2rem' }}>
-        <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ 
+        background: 'var(--glass)', 
+        borderRadius: '16px', 
+        padding: '2rem',
+        border: '1px solid var(--border)',
+        marginBottom: '2rem'
+      }}>
+        <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white' }}>
           <TrendingUp size={20} color="var(--primary)" />
           Investment Milestones
         </h3>
@@ -123,7 +139,7 @@ const Goals = ({ token }) => {
                 fontSize: '0.75rem',
                 fontWeight: 'bold'
               }}>✓</div>
-              <span style={{ fontSize: '1rem', fontWeight: '600' }}>First ₹1L</span>
+              <span style={{ fontSize: '1rem', fontWeight: '600', color: 'white' }}>First ₹1L</span>
             </div>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Achieved in 6 months</p>
           </div>
@@ -146,7 +162,7 @@ const Goals = ({ token }) => {
                 fontSize: '0.75rem',
                 fontWeight: 'bold'
               }}>✓</div>
-              <span style={{ fontSize: '1rem', fontWeight: '600' }}>Diversified Portfolio</span>
+              <span style={{ fontSize: '1rem', fontWeight: '600', color: 'white' }}>Diversified Portfolio</span>
             </div>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>5+ sectors covered</p>
           </div>
@@ -170,15 +186,21 @@ const Goals = ({ token }) => {
                 fontSize: '0.75rem',
                 fontWeight: 'bold'
               }}>○</div>
-              <span style={{ fontSize: '1rem', fontWeight: '600' }}>₹10L Portfolio</span>
+              <span style={{ fontSize: '1rem', fontWeight: '600', color: 'white' }}>₹10L Portfolio</span>
             </div>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Target by end of year</p>
           </div>
         </div>
       </div>
 
-      <div className="glass-card" style={{ padding: '2rem' }}>
-        <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ 
+        background: 'var(--glass)', 
+        borderRadius: '16px', 
+        padding: '2rem',
+        border: '1px solid var(--border)',
+        marginBottom: '2rem'
+      }}>
+        <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white' }}>
           <AlertTriangle size={20} color="var(--warning)" />
           Recommendations
         </h3>

@@ -1,212 +1,31 @@
 import React, { useState } from 'react';
 import { 
-  Plus, 
-  Wallet, 
-  Smartphone, 
-  CreditCard, 
   Users, 
-  HeadphonesIcon, 
+  Headphones, 
   AlertTriangle,
-  ArrowUpRight,
-  ArrowDownLeft,
-  History,
   Settings,
-  Gift,
   LogOut,
-  TrendingUp,
-  ArrowUp,
-  ArrowDown,
-  Activity,
-  DollarSign,
-  Shield,
   CheckCircle,
-  Clock,
-  User
+  User,
+  TrendingUp,
+  CreditCard,
+  Shield,
+  Calendar,
+  Phone,
+  Mail,
+  Camera,
+  Upload,
+  Edit,
+  Save,
+  X,
+  ArrowLeft,
+  Building,
+  MapPin,
+  Globe
 } from 'lucide-react';
 
-const Profile = ({ onLogout, user, setActiveTab: navigateTo }) => {
+const Profile = ({ user }) => {
   const [activeTab, setActiveTab] = useState('overview');
-
-  // Load saved profile image from localStorage
-  const getSavedImage = () => {
-    try {
-      const saved = localStorage.getItem('userProfile');
-      return saved ? JSON.parse(saved).profileImage || null : null;
-    } catch { return null; }
-  };
-  const savedProfileImage = getSavedImage();
-
-  const firstName = user?.name ? user.name.trim().split(' ')[0] : 'User';
-  const avatarLetter = firstName.charAt(0).toUpperCase();
-
-  const savedProfile = (() => {
-    try {
-      const saved = localStorage.getItem('userProfile');
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
-  })();
-
-  const renderOverview = () => (
-    <div style={{ display: 'grid', gap: '1.5rem' }}>
-      <div style={{
-        background: 'var(--glass)',
-        borderRadius: '12px',
-        padding: '2rem',
-        border: '1px solid var(--border)'
-      }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', marginBottom: '1.5rem' }}>
-          Personal & KYC Details
-        </h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-          <div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Email Address</p>
-            <p style={{ fontSize: '1rem', color: 'white', fontWeight: '500' }}>{user?.email || savedProfile?.email || 'demo@groww.com'}</p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Mobile Number</p>
-            <p style={{ fontSize: '1rem', color: 'white', fontWeight: '500' }}>
-              {savedProfile?.mobile ? `+91 ${savedProfile.mobile}` : 'Not added'}
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>PAN Verification</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <p style={{ fontSize: '1rem', color: 'white', fontWeight: '500' }}>
-                {savedProfile?.pan ? savedProfile.pan : 'Not verified'}
-              </p>
-              {savedProfile?.pan && <CheckCircle size={14} color="#10b981" />}
-            </div>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Aadhar Status</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <p style={{ fontSize: '1rem', color: 'white', fontWeight: '500' }}>
-                {savedProfile?.aadhar ? 'Verified' : 'Not verified'}
-              </p>
-              {savedProfile?.aadhar && <CheckCircle size={14} color="#10b981" />}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSupport = () => (
-    <div style={{ display: 'grid', gap: '1.5rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-        <div style={{
-          background: 'var(--glass)',
-          borderRadius: '12px',
-          padding: '2rem',
-          border: '1px solid var(--border)',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '60px',
-            height: '60px',
-            background: 'var(--primary)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1rem'
-          }}>
-            <HeadphonesIcon size={28} color="white" />
-          </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', margin: '0 0 0.5rem' }}>
-            Customer Support
-          </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
-            Get help from our support team
-          </p>
-          <button style={{
-            padding: '0.75rem 1.5rem',
-            background: 'var(--primary)',
-            border: 'none',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}>
-            Contact Support
-          </button>
-        </div>
-
-        <div style={{
-          background: 'var(--glass)',
-          borderRadius: '12px',
-          padding: '2rem',
-          border: '1px solid var(--border)',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '60px',
-            height: '60px',
-            background: 'var(--danger)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1rem'
-          }}>
-            <AlertTriangle size={28} color="white" />
-          </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', margin: '0 0 0.5rem' }}>
-            Report Issue
-          </h3>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
-            Report problems or bugs
-          </p>
-          <button style={{
-            padding: '0.75rem 1.5rem',
-            background: 'var(--danger)',
-            border: 'none',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}>
-            Report Now
-          </button>
-        </div>
-      </div>
-
-      <div style={{
-        background: 'var(--glass)',
-        borderRadius: '12px',
-        padding: '1.5rem',
-        border: '1px solid var(--border)'
-      }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', marginBottom: '1rem' }}>
-          Frequently Asked Questions
-        </h3>
-        <div style={{ display: 'grid', gap: '0.75rem' }}>
-          {[
-            { question: 'How do I add money to my wallet?', answer: 'Click on "Add Money" button and select your payment method.' },
-            { question: 'How to transfer money using UPI?', answer: 'Go to UPI section and enter recipient details.' },
-            { question: 'How do I link a new bank account?', answer: 'Click on "Add New Bank Account" in Bank section.' }
-          ].map((faq, idx) => (
-            <div key={idx} style={{
-              padding: '1rem',
-              background: 'var(--glass-hover)',
-              borderRadius: '8px',
-              border: '1px solid var(--border)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'white', margin: 0 }}>
-                  {faq.question}
-                </p>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>▼</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderEditProfile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -235,7 +54,124 @@ const Profile = ({ onLogout, user, setActiveTab: navigateTo }) => {
     }));
   };
 
-  return (
+  // Load saved profile image from localStorage
+  const getSavedImage = () => {
+    try {
+      const saved = localStorage.getItem('userProfile');
+      return saved ? JSON.parse(saved).profileImage || null : null;
+    } catch { return null; }
+  };
+  const savedProfileImage = getSavedImage();
+
+  const firstName = user?.name ? user.name.trim().split(' ')[0] : 'User';
+  const avatarLetter = firstName.charAt(0).toUpperCase();
+
+  const savedProfile = (() => {
+    try {
+      const saved = localStorage.getItem('userProfile');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  })();
+
+  const renderOverview = () => (
+    <div style={{ display: 'grid', gap: '1.5rem' }}>
+      <div style={{
+        background: 'var(--glass)',
+        borderRadius: '16px',
+        padding: '2rem',
+        border: '1px solid rgba(255,255,255,0.05)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <Shield size={24} color="var(--primary)" />
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'white', margin: 0 }}>
+            Personal & KYC Details
+          </h2>
+        </div>
+        
+        <div className="grid-responsive-2" style={{ gap: '1.25rem' }}>
+          {/* Email Card */}
+          <div className="kyc-card" style={{
+            background: 'var(--glass-hover)', padding: '1.25rem', borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s ease', cursor: 'default'
+          }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(99,102,241,0.1)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Mail size={18} color="#6366f1" />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</p>
+                <p style={{ fontSize: '0.95rem', color: 'white', fontWeight: '600', margin: 0 }}>{user?.email || savedProfile?.email || 'demo@groww.com'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Card */}
+          <div className="kyc-card" style={{
+            background: 'var(--glass-hover)', padding: '1.25rem', borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s ease', cursor: 'default'
+          }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(245,158,11,0.1)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Phone size={18} color="#f59e0b" />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Mobile Number</p>
+                <p style={{ fontSize: '0.95rem', color: 'white', fontWeight: '600', margin: 0 }}>
+                  {savedProfile?.mobile ? `+91 ${savedProfile.mobile}` : <span style={{ color: '#ef4444' }}>Action Required</span>}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* PAN Card */}
+          <div className="kyc-card" style={{
+            background: 'var(--glass-hover)', padding: '1.25rem', borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s ease', cursor: 'default'
+          }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(16,185,129,0.3)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(16,185,129,0.1)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CreditCard size={18} color="#10b981" />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>PAN Verification</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <p style={{ fontSize: '0.95rem', color: 'white', fontWeight: '600', margin: 0 }}>
+                    {savedProfile?.pan ? savedProfile.pan : <span style={{ color: '#ef4444' }}>Not Verified</span>}
+                  </p>
+                  {savedProfile?.pan && <CheckCircle size={14} color="#10b981" />}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Aadhar Card */}
+          <div className="kyc-card" style={{
+            background: 'var(--glass-hover)', padding: '1.25rem', borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s ease', cursor: 'default'
+          }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(139,92,246,0.1)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckCircle size={18} color="#8b5cf6" />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 0.25rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Aadhar Status</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <p style={{ fontSize: '0.95rem', color: 'white', fontWeight: '600', margin: 0 }}>
+                    {savedProfile?.aadhar ? 'Verified KYC' : <span style={{ color: '#ef4444' }}>Pending</span>}
+                  </p>
+                  {savedProfile?.aadhar && <CheckCircle size={14} color="#10b981" />}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderEditProfile = () => {
+    return (
     <div style={{ display: 'grid', gap: '1.5rem' }}>
       {/* Profile Image Section */}
       <div style={{
@@ -254,16 +190,17 @@ const Profile = ({ onLogout, user, setActiveTab: navigateTo }) => {
             width: '120px',
             height: '120px',
             borderRadius: '50%',
-            background: profileImage ? `url(${profileImage})` : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            background: profileImage ? 'transparent' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             border: '3px solid var(--primary)',
-            boxShadow: '0 0 20px rgba(99,102,241,0.3)'
+            boxShadow: '0 0 20px rgba(99,102,241,0.3)',
+            overflow: 'hidden'
           }}>
-            {!profileImage && (
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
               <span style={{ fontSize: '3rem', fontWeight: 'bold', color: 'white' }}>
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </span>
@@ -479,6 +416,12 @@ const Profile = ({ onLogout, user, setActiveTab: navigateTo }) => {
       {/* Save Button */}
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
         <button 
+          onClick={() => {
+            const updatedProfile = { ...formData, profileImage };
+            localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+            window.dispatchEvent(new Event('profileUpdated'));
+            setActiveTab('overview');
+          }}
           style={{
             padding: '1rem 2rem',
             background: 'var(--primary)',
@@ -526,38 +469,77 @@ const Profile = ({ onLogout, user, setActiveTab: navigateTo }) => {
 };
 
   return (
-    <div className="profile-page" style={{ padding: '2rem' }}>
-      {/* Header */}
+    <div className="profile-page" style={{ 
+      padding: '2rem',
+      animation: 'fadeInUp 0.5s ease-out forwards'
+    }}>
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .kyc-card {
+          position: relative;
+          overflow: hidden;
+        }
+        .kyc-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+          transform: skewX(-25deg);
+          transition: all 0.5s;
+        }
+        }
+        .kyc-card:hover::after {
+          left: 150%;
+        }
+      `}</style>
+
+      {/* Main Header / Banner */}
       <div style={{
-        background: 'var(--glass)',
-        borderRadius: '16px',
-        padding: '2rem',
+        background: 'linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.2) 100%)',
+        borderRadius: '24px',
+        padding: '2.5rem',
         marginBottom: '2rem',
-        border: '1px solid var(--border)'
+        border: '1px solid rgba(255,255,255,0.05)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: '2rem',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem' }}>
+        {/* Decorative background elements */}
+        <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', borderRadius: '50%' }} />
+
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '1.25rem', position: 'relative', zIndex: 1 }}>
           {/* Avatar - shows uploaded image or letter */}
           <div
             style={{
-              width: '80px',
-              height: '80px',
+              width: '90px',
+              height: '90px',
               background: savedProfileImage ? 'transparent' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 'bold',
-              fontSize: '2rem',
+              fontWeight: '800',
+              fontSize: '2.5rem',
               color: 'white',
-              boxShadow: '0 0 25px rgba(99,102,241,0.4)',
+              boxShadow: '0 10px 25px rgba(99,102,241,0.4)',
               cursor: 'pointer',
-              transition: 'transform 0.2s ease',
+              transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
               overflow: 'hidden',
-              border: '3px solid rgba(99,102,241,0.5)',
+              border: '4px solid rgba(255,255,255,0.1)',
             }}
-            onClick={() => navigateTo && navigateTo('edit-profile')}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            onClick={() => setActiveTab('edit-profile')}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.1) rotate(5deg)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.8)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1) rotate(0deg)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
           >
             {savedProfileImage ? (
               <img src={savedProfileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -566,84 +548,52 @@ const Profile = ({ onLogout, user, setActiveTab: navigateTo }) => {
             )}
           </div>
           <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', margin: '0 0 0.5rem' }}>
+            <h1 style={{ fontSize: '2.25rem', fontWeight: '800', color: 'white', margin: '0 0 0.25rem', letterSpacing: '-0.5px' }}>
               {user?.name || 'Demo User'}
             </h1>
-            <p style={{ fontSize: '1rem', color: 'var(--text-muted)', margin: 0 }}>
+            <p style={{ fontSize: '0.95rem', color: '#94a3b8', margin: 0, fontWeight: '500' }}>
               {user?.email || 'demo@groww.com'}
             </p>
             <button
               style={{
-                padding: '0.5rem 1.25rem',
-                background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2))',
-                border: '1px solid rgba(99,102,241,0.4)',
-                borderRadius: '8px',
-                color: '#a78bfa',
+                padding: '0.6rem 1.5rem',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '20px',
+                color: 'white',
                 cursor: 'pointer',
-                fontSize: '0.875rem',
+                fontSize: '0.85rem',
                 fontWeight: '600',
-                marginTop: '1rem',
+                marginTop: '1.25rem',
                 transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                margin: '1.25rem auto 0'
               }}
-              onClick={() => navigateTo && navigateTo('edit-profile')}
+              onClick={() => setActiveTab('edit-profile')}
               onMouseOver={e => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.35), rgba(139,92,246,0.35))';
-                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.background = 'var(--primary)';
+                e.currentTarget.style.borderColor = 'var(--primary)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 5px 15px rgba(99,102,241,0.3)';
               }}
               onMouseOut={e => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2))';
-                e.currentTarget.style.color = '#a78bfa';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              Edit Profile
+              <Edit size={14} /> Edit Profile
             </button>
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div style={{
-        background: 'var(--glass)',
-        borderRadius: '12px',
-        padding: '0.5rem',
-        marginBottom: '2rem',
-        border: '1px solid var(--border)',
-        display: 'flex',
-        gap: '0.5rem'
-      }}>
-        {[
-          { id: 'overview', label: 'Overview', icon: User },
-          { id: 'support', label: 'Support', icon: HeadphonesIcon }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem 1rem',
-              background: activeTab === tab.id ? 'var(--primary)' : 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              color: activeTab === tab.id ? 'white' : 'var(--text-muted)',
-              fontWeight: '500'
-            }}
-          >
-            <tab.icon size={18} />
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
+      {/* Content Area */}
       <div>
         {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'support' && renderSupport()}
         {activeTab === 'edit-profile' && renderEditProfile()}
       </div>
     </div>

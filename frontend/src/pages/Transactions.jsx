@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { Plus, Filter, Search, TrendingUp, TrendingDown, DollarSign, BarChart3, PieChart } from 'lucide-react';
+import { Plus, Filter, Search, TrendingUp, TrendingDown, DollarSign, BarChart3, PieChart, Pencil, Trash2 } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import TransactionForm from '../components/TransactionForm';
 
 const Transactions = ({ token }) => {
-  const { transactions, addTransaction, calculateStats } = usePortfolio(token);
+  const { transactions, addTransaction, updateTransaction, deleteTransaction } = usePortfolio(token);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editTransaction, setEditTransaction] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const stats = calculateStats();
 
   // Filter options
   const filterOptions = [
@@ -77,7 +76,7 @@ const Transactions = ({ token }) => {
   });
 
   return (
-    <div className="transactions">
+    <div style={{ padding: '2rem' }}>
       {/* Header */}
       <div style={{ 
         background: 'var(--glass)', 
@@ -92,15 +91,24 @@ const Transactions = ({ token }) => {
             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Manage your investment history and industry performance</p>
           </div>
           <button 
-            className="btn btn-primary" 
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '8px',
               borderRadius: '8px',
-              padding: '0.75rem 1.5rem'
+              padding: '0.75rem 1.5rem',
+              background: 'var(--primary)',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
             }}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setEditTransaction(null);
+              setIsModalOpen(true);
+            }}
           >
             <Plus size={18} /> Add Transaction
           </button>
@@ -226,171 +234,190 @@ const Transactions = ({ token }) => {
         ))}
       </div>
 
-      {/* Transactions Table */}
+      {/* Transaction List */}
       <div style={{ 
         background: 'var(--glass)', 
-        borderRadius: '12px', 
-        padding: '1.5rem',
-        border: '1px solid var(--border)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+        borderRadius: '16px', 
+        padding: '2rem',
+        border: '1px solid var(--border)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'white', margin: 0 }}>
-            Transaction History
-          </h3>
-          <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-            {filteredTransactions.length} transactions
-          </div>
-        </div>
-
-        {filteredTransactions.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Date</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Stock</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Industry</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Quantity</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Buy Rate</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Current Rate</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Total Investment</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Current Value</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>P&L</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.8125rem', fontWeight: '500' }}>Returns</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTransactions.map((transaction, idx) => {
-                  const investment = transaction.quantity * transaction.buyPrice;
-                  const currentValue = transaction.quantity * transaction.currentPrice;
-                  const pl = currentValue - investment;
-                  const returns = ((pl / investment) * 100).toFixed(2);
-                  const isProfitable = pl >= 0;
-                  
-                  return (
-                    <tr key={transaction.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: 'white' }}>
-                        {new Date(transaction.transactionDate).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ 
-                            width: '24px', 
-                            height: '24px', 
-                            background: 'var(--glass-hover)', 
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            color: 'white'
-                          }}>
-                            {transaction.symbol.substring(0, 2)}
-                          </div>
-                          <div>
-                            <p style={{ fontWeight: '600', fontSize: '0.875rem', color: 'white', margin: 0 }}>
-                              {transaction.symbol}
-                            </p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
-                              {transaction.companyName}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.75rem', fontSize: '0.875rem' }}>
-                        <span style={{
-                          padding: '0.25rem 0.5rem',
-                          background: 'var(--glass-hover)',
-                          borderRadius: '4px',
-                          fontSize: '0.75rem',
-                          fontWeight: '500',
-                          color: 'white'
-                        }}>
-                          {transaction.sector}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right', fontSize: '0.875rem', color: 'white' }}>
-                        {transaction.quantity}
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right', fontSize: '0.875rem', color: 'white' }}>
-                        Rs {transaction.buyPrice}
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right', fontSize: '0.875rem', color: 'white' }}>
-                        Rs {transaction.currentPrice}
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right', fontSize: '0.875rem', color: 'white' }}>
-                        Rs {investment.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'right', fontSize: '0.875rem', color: 'white' }}>
-                        Rs {currentValue.toLocaleString()}
-                      </td>
-                      <td style={{ 
-                        padding: '0.75rem', 
-                        textAlign: 'right', 
-                        fontSize: '0.875rem', 
-                        color: isProfitable ? 'var(--accent)' : 'var(--danger)',
-                        fontWeight: '500'
-                      }}>
-                        {isProfitable ? '+' : ''}Rs {pl.toLocaleString()}
-                      </td>
-                      <td style={{ 
-                        padding: '0.75rem', 
-                        textAlign: 'right', 
-                        fontSize: '0.875rem', 
-                        color: isProfitable ? 'var(--accent)' : 'var(--danger)',
-                        fontWeight: '500'
-                      }}>
-                        {isProfitable ? '+' : ''}{returns}%
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div style={{ 
-            padding: '3rem', 
-            textAlign: 'center', 
-            color: 'var(--text-muted)' 
-          }}>
-            <div style={{ 
-              width: '48px', 
-              height: '48px', 
-              background: 'var(--glass-hover)', 
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1rem'
-            }}>
-              <TrendingUp size={24} color="var(--text-muted)" />
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', marginBottom: '1.5rem' }}>
+          Transaction History
+        </h2>
+        
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          {filteredTransactions.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+              <p>No transactions found matching your criteria.</p>
             </div>
-            <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'white' }}>No transactions found</h3>
-            <p style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
-              {searchTerm ? 'Try adjusting your search or filters' : 'Start by adding your first investment'}
-            </p>
-            {!searchTerm && (
-              <button 
-                className="btn btn-primary"
-                onClick={() => setIsModalOpen(true)}
-                style={{ borderRadius: '8px' }}
-              >
-                Add First Transaction
-              </button>
-            )}
-          </div>
-        )}
+          ) : (
+            filteredTransactions.map((transaction, idx) => (
+              <div key={idx} style={{
+                background: 'var(--glass-hover)',
+                borderRadius: '8px',
+                padding: '1rem',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    background: transaction.type === 'buy' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {transaction.type === 'buy' ? (
+                      <TrendingUp size={20} color="#10b981" />
+                    ) : (
+                      <TrendingDown size={20} color="#ef4444" />
+                    )}
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '1rem', fontWeight: '600', color: 'white', margin: '0 0 0.25rem 0' }}>
+                      {transaction.companyName}
+                    </h4>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: '0' }}>
+                      {transaction.symbol} • {transaction.sector}
+                    </p>
+                  </div>
+                </div>
+                
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                    {transaction.quantity} shares @ Rs {transaction.buyPrice}
+                  </div>
+                  <div style={{ fontSize: '1rem', fontWeight: '600', color: 'white' }}>
+                    Rs {(transaction.quantity * transaction.currentPrice).toLocaleString()}
+                  </div>
+                  <div style={{ 
+                    fontSize: '0.875rem', 
+                    fontWeight: '500', 
+                    color: transaction.type === 'buy' ? 'var(--accent)' : 'var(--danger)' 
+                  }}>
+                    {transaction.type === 'buy' ? '+' : '-'} 
+                    Rs {Math.abs(transaction.quantity * (transaction.currentPrice - transaction.buyPrice)).toLocaleString()}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '1.5rem', borderLeft: '1px solid var(--border)', paddingLeft: '1rem' }}>
+                  <button 
+                    onClick={() => {
+                      setEditTransaction(transaction);
+                      setIsModalOpen(true);
+                    }}
+                    style={{
+                      background: 'rgba(99, 102, 241, 0.1)',
+                      border: 'none',
+                      padding: '0.5rem',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      color: 'var(--primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s'
+                    }}
+                    title="Edit Transaction"
+                  >
+                    <Pencil size={18} />
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this transaction?')) {
+                        deleteTransaction(transaction.id);
+                      }
+                    }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: 'none',
+                      padding: '0.5rem',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      color: 'var(--danger)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s'
+                    }}
+                    title="Delete Transaction"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
-      {/* Transaction Form Modal */}
-      <TransactionForm 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onAdd={addTransaction} 
-      />
+      {/* Modal */}
+      {isModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: 'var(--glass)',
+            borderRadius: '16px',
+            width: '90%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            border: '1px solid var(--border)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'white', margin: 0 }}>
+                Add Transaction
+              </h2>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontSize: '1.5rem'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <TransactionForm 
+              initialData={editTransaction}
+              onAdd={(newTransaction) => {
+                addTransaction(newTransaction);
+                setIsModalOpen(false);
+              }}
+              onUpdate={(id, updated) => {
+                updateTransaction(id, updated);
+                setIsModalOpen(false);
+                setEditTransaction(null);
+              }}
+              onClose={() => {
+                setIsModalOpen(false);
+                setEditTransaction(null);
+              }}
+              token={token}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

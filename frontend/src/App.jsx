@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
-import Dashboard from './pages/Dashboard';
-import Portfolio from './pages/Portfolio';
-import Analytics from './pages/Analytics';
-import Goals from './pages/Goals';
-import Transactions from './pages/Transactions';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
-import UserProfile from './pages/UserProfile';
-import DetailedProfile from './pages/DetailedProfile';
-import EditProfile from './pages/EditProfile';
-import Auth from './pages/Auth';
+import Chatbot from './components/Chatbot';
+import StockTicker from './components/StockTicker';
+
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Portfolio = lazy(() => import('./pages/Portfolio'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Goals = lazy(() => import('./pages/Goals'));
+const Transactions = lazy(() => import('./pages/Transactions'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Profile = lazy(() => import('./pages/Profile'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
+const News = lazy(() => import('./pages/News'));
+const Auth = lazy(() => import('./pages/Auth'));
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -24,24 +26,24 @@ function App() {
     }
   });
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const handleLogin = (jwtToken, userData) => {
     setToken(jwtToken);
     setUser(userData);
-    localStorage.setItem('token', jwtToken);
-    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const handleLogout = () => {
-    setToken(null);
-    setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-  };
-
-  const handleProfileSave = (updatedUser) => {
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setToken(null);
+    setUser(null);
   };
 
   useEffect(() => {
@@ -65,29 +67,29 @@ function App() {
   }
 
   return (
-    <div className="app-container">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="main-content">
-        <Topbar onLogout={handleLogout} user={user} setActiveTab={setActiveTab} />
-        <main style={{ marginLeft: '280px', padding: '1rem 2rem' }}>
-          {activeTab === 'dashboard' && <Dashboard token={token} />}
-          {activeTab === 'portfolio' && <Portfolio token={token} />}
-          {activeTab === 'analytics' && <Analytics token={token} />}
-          {activeTab === 'goals' && <Goals token={token} />}
-          {activeTab === 'transactions' && <Transactions token={token} />}
-          {activeTab === 'settings' && <Settings />}
-          {activeTab === 'profile' && <Profile onLogout={handleLogout} user={user} setActiveTab={setActiveTab} />}
-          {activeTab === 'user-profile' && <UserProfile onLogout={handleLogout} user={user} />}
-          {activeTab === 'detailed-profile' && <DetailedProfile onLogout={handleLogout} user={user} />}
-          {activeTab === 'edit-profile' && (
-            <EditProfile
-              user={user}
-              onBack={() => setActiveTab('profile')}
-              onSave={handleProfileSave}
-            />
-          )}
-        </main>
+    <div className={`app-wrapper ${theme === 'light' ? 'light-mode' : ''}`} style={{ background: 'var(--bg-dark)', minHeight: '100vh', transition: 'background-color 0.3s ease' }}>
+      <StockTicker />
+      <div className="app-container">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
+        <div className="main-content" style={{ flex: 1, width: '100%', overflowX: 'hidden' }}>
+          <Topbar onLogout={handleLogout} user={user} setActiveTab={setActiveTab} />
+          <main className="app-main-content" style={{ marginLeft: '80px', padding: '1.5rem 2rem', transition: 'all 0.3s ease' }}>
+          <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>Loading...</div>}>
+            {activeTab === 'dashboard' && <Dashboard token={token} setActiveTab={setActiveTab} />}
+            {activeTab === 'news' && <News token={token} />}
+            {activeTab === 'portfolio' && <Portfolio token={token} />}
+            {activeTab === 'analytics' && <Analytics token={token} />}
+            {activeTab === 'goals' && <Goals token={token} />}
+            {activeTab === 'transactions' && <Transactions token={token} />}
+            {activeTab === 'settings' && <Settings theme={theme} setTheme={setTheme} />}
+            {activeTab === 'profile' && <Profile onLogout={handleLogout} user={user} setActiveTab={setActiveTab} />}
+            {activeTab === 'user-profile' && <UserProfile onLogout={handleLogout} user={user} />}
+          </Suspense>
+            {activeTab === 'detailed-profile' && <DetailedProfile onLogout={handleLogout} user={user} />}
+          </main>
+        </div>
       </div>
+      <Chatbot token={token} />
       
       <style dangerouslySetInnerHTML={{ __html: `
         .app-container {
