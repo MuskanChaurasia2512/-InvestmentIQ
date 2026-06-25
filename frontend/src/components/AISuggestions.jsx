@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Lightbulb, AlertTriangle, TrendingUp, ShieldCheck, Activity } from 'lucide-react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const InsightCard = ({ type, title, message, color }) => {
   let Icon = Lightbulb;
   if (type === 'risk') Icon = AlertTriangle;
@@ -50,7 +52,7 @@ const AISuggestions = ({ portfolio, token }) => {
     const fetchAISuggestions = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/api/ai/suggestions', {
+        const response = await axios.get(`${API_URL}/api/ai/suggestions`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setInsights(response.data.insights || []);

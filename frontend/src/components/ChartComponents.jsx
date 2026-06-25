@@ -33,6 +33,9 @@ ChartJS.register(
  * GrowthLineChart: Dual-line chart for Portfolio Value vs NIFTY 50
  */
 export const GrowthLineChart = ({ data = [] }) => {
+  if (!Array.isArray(data)) {
+    return <div style={{ color: 'var(--danger)', padding: '1rem', textAlign: 'center' }}>Unable to load chart data</div>;
+  }
   const options = {
     responsive: true,
     maintainAspectRatio: false,

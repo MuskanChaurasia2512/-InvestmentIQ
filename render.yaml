@@ -1,0 +1,39 @@
+services:
+  # Backend API Web Service
+  - type: web
+    name: share-market-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    rootDir: backend
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+  # Frontend Static Site
+  - type: web
+    name: share-market-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    rootDir: frontend
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: share-market-backend
+          property: host
+    routes:
+      - type: rewrite
+        src: /*
+        dest: /index.html

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const SYMBOLS = [
   { symbol: 'NIFTY50', label: 'NIFTY 50' },
   { symbol: 'SENSEX', label: 'SENSEX' },
@@ -18,7 +20,7 @@ const SYMBOLS = [
 
 const fetchPrice = async (symbol) => {
   try {
-    const res = await fetch(`http://localhost:5000/api/stock-price/${symbol}`);
+    const res = await fetch(`${API_URL}/api/stock-price/${symbol}`);
     const data = await res.json();
     return {
       label: SYMBOLS.find(s => s.symbol === symbol)?.label || symbol,

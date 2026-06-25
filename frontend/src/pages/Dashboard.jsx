@@ -8,6 +8,8 @@ import AISuggestions from '../components/AISuggestions';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { GrowthLineChart } from '../components/ChartComponents';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Dashboard = ({ token, setActiveTab }) => {
   const { transactions, addTransaction, calculateStats } = usePortfolio(token);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,7 +25,7 @@ const Dashboard = ({ token, setActiveTab }) => {
   useEffect(() => {
     const fetchPerformance = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/portfolio/growth?period=${graphPeriod}`, {
+        const res = await axios.get(`${API_URL}/api/portfolio/growth?period=${graphPeriod}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setPerformanceData(res.data);
@@ -96,7 +98,7 @@ const Dashboard = ({ token, setActiveTab }) => {
     try {
       const results = await Promise.all(
         symbols.map(s =>
-          fetch(`http://localhost:5000/api/stock-price/${s.symbol}`)
+          fetch(`${API_URL}/api/stock-price/${s.symbol}`)
             .then(r => r.json())
             .then(d => ({ ...s, change: parseFloat(d.changePercent), price: d.currentPrice, isUp: parseFloat(d.changePercent) >= 0 }))
             .catch(() => null)
@@ -272,7 +274,7 @@ const Dashboard = ({ token, setActiveTab }) => {
         </div>
 
         <div style={{ height: '350px', width: '100%' }}>
-          {performanceData.length > 0 ? (
+          {Array.isArray(performanceData) && performanceData.length > 0 ? (
             <GrowthLineChart data={performanceData} />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)' }}>
@@ -421,7 +423,7 @@ const Dashboard = ({ token, setActiveTab }) => {
           </div>
 
           <div style={{ height: '350px', width: '100%' }}>
-            {performanceData.length > 0 ? (
+            {Array.isArray(performanceData) && performanceData.length > 0 ? (
               <GrowthLineChart data={performanceData} />
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)' }}>

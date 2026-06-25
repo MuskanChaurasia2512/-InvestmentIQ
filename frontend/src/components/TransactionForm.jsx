@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { X, PlusCircle, TrendingUp, Search } from 'lucide-react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const TransactionForm = ({ onAdd, onUpdate, onClose, initialData }) => {
   const [formData, setFormData] = useState(initialData || {
     name: '',
@@ -43,7 +45,7 @@ const TransactionForm = ({ onAdd, onUpdate, onClose, initialData }) => {
     
     setLoadingPrice(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/stock-price/${symbol}`);
+      const response = await axios.get(`${API_URL}/api/stock-price/${symbol}`);
       const price = response.data.currentPrice;
       setFormData(prev => ({ 
         ...prev, 

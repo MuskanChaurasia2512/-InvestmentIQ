@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Newspaper, TrendingUp, TrendingDown, Activity, RefreshCw, ExternalLink, Clock, Zap, BarChart2, Play, Pause } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const MARKET_INDICES = [
   { name: 'NIFTY 50',    base: 24520, color: '#10b981', change: '+0.82%' },
   { name: 'SENSEX',      base: 80650, color: '#6366f1', change: '+0.74%' },
@@ -42,7 +44,7 @@ export default function News() {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/market-news');
+      const res = await fetch(`${API_URL}/api/market-news`);
       const data = await res.json();
       setNews(data.articles || []);
     } catch (e) {

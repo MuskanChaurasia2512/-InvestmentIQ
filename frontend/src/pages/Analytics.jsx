@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, TrendingUp, TrendingDown, DollarSign, PieChart, AlertCircle, Calendar, Target, Shield } from 'lucide-react';
 import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 import { 
   Sparkline, 
   WinRateChart, 
@@ -20,10 +22,10 @@ const Analytics = ({ token }) => {
       try {
         setLoading(true);
         const [txRes, growthRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/transactions', {
+          axios.get(`${API_URL}/api/transactions`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          axios.get(`http://localhost:5000/api/portfolio/growth?period=${timeFilter === 'All' ? '1Y' : timeFilter === 'Week' ? '1W' : timeFilter === 'Month' ? '1M' : '1Y'}`, {
+          axios.get(`${API_URL}/api/portfolio/growth?period=${timeFilter === 'All' ? '1Y' : timeFilter === 'Week' ? '1W' : timeFilter === 'Month' ? '1M' : '1Y'}`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);

@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const usePortfolio = (token) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -8,12 +10,17 @@ export const usePortfolio = (token) => {
   const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/transactions', {
+      const res = await axios.get(`${API_URL}/api/transactions`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Ensure we map MongoDB _id to id for existing frontend logic
-      const data = res.data.map(tx => ({ ...tx, id: tx._id, symbol: tx.stockSymbol, name: tx.companyName }));
-      setTransactions(data);
+      if (Array.isArray(res.data)) {
+        const data = res.data.map(tx => ({ ...tx, id: tx._id, symbol: tx.stockSymbol, name: tx.companyName }));
+        setTransactions(data);
+      } else {
+        console.error('Expected an array of transactions but received:', res.data);
+        setTransactions([]);
+      }
     } catch (err) {
       console.error('Error fetching transactions', err);
       // Auto logout on invalid or expired token
@@ -36,7 +43,7 @@ export const usePortfolio = (token) => {
 
   const addTransaction = async (newTx) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/transactions', newTx, {
+      const res = await axios.post(`${API_URL}/api/transactions`, newTx, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = res.data;
@@ -49,7 +56,7 @@ export const usePortfolio = (token) => {
 
   const updateTransaction = async (id, updatedTx) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/transactions/${id}`, updatedTx, {
+      const res = await axios.put(`${API_URL}/api/transactions/${id}`, updatedTx, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = res.data;
@@ -62,7 +69,7 @@ export const usePortfolio = (token) => {
 
   const deleteTransaction = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/transactions/${id}`, {
+      await axios.delete(`${API_URL}/api/transactions/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTransactions(prev => prev.filter(tx => tx.id !== id));

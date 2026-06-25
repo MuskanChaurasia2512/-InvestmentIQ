@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Chatbot = ({ token }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -33,7 +35,7 @@ const Chatbot = ({ token }) => {
       // Exclude the initial greeting from history to save tokens and keep it clean
       const historyToSent = newMessages.slice(1, -1);
       
-      const response = await axios.post('http://localhost:5000/api/chat', {
+      const response = await axios.post(`${API_URL}/api/chat`, {
         message: userMessage.text,
         history: historyToSent
       }, {

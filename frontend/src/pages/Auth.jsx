@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, TrendingUp, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Auth = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -26,7 +28,7 @@ const Auth = ({ onLogin }) => {
     try {
       const endpoint = isLogin ? '/api/login' : '/api/signup';
       const payload = isLogin ? { email: formData.email.trim(), password: formData.password } : formData;
-      const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
+      const res = await axios.post(`${API_URL}${endpoint}`, payload);
       
       // Requirement 7: Return success message after login
       alert(isLogin ? "Success: " + res.data.msg : "Account Created Successfully!");

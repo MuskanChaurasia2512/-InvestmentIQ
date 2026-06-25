@@ -7,19 +7,25 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI).then(async () => {
-  console.log('✅ MongoDB connected');
-  // Initialize demo user if not exists
-  const demoExists = await User.findOne({ email: 'demo@groww.com' });
-  if (!demoExists) {
-    await new User({
-      name: 'Demo User',
-      email: 'demo@groww.com',
-      password: 'demo123',
-    }).save();
-    console.log('Demo user created: demo@groww.com / demo123');
-  }
-}).catch((err) => console.error('MongoDB connection error:', err));
+const mongoURI = process.env.MONGO_URI;
+if (!mongoURI) {
+  console.error('❌ ERROR: MONGO_URI environment variable is not defined!');
+  console.error('Please configure MONGO_URI in your environment variables.');
+} else {
+  mongoose.connect(mongoURI).then(async () => {
+    console.log('✅ MongoDB connected');
+    // Initialize demo user if not exists
+    const demoExists = await User.findOne({ email: 'demo@groww.com' });
+    if (!demoExists) {
+      await new User({
+        name: 'Demo User',
+        email: 'demo@groww.com',
+        password: 'demo123',
+      }).save();
+      console.log('Demo user created: demo@groww.com / demo123');
+    }
+  }).catch((err) => console.error('MongoDB connection error:', err));
+}
 
 // Mongoose Models
 const UserSchema = new mongoose.Schema({
@@ -304,51 +310,75 @@ app.post('/api/test-login', async (req, res) => {
 
 // Real-time stock price API
 app.get('/api/stock-price/:symbol', async (req, res) => {
+  const { symbol } = req.params;
+  const upperSymbol = symbol.toUpperCase();
+
+  // Fallback mock prices (used when Yahoo API is unavailable)
+  const mockPrices = {
+    'RELIANCE': 2840, 'TCS': 3180, 'HDFC': 1760, 'INFY': 1510,
+    'SBIN': 810, 'NIFTY50': 24500, 'SENSEX': 80750,
+    'HDFCBANK': 1640, 'ICICIBANK': 1250, 'WIPRO': 260,
+    'BHARTIARTL': 1920, 'ITC': 435, 'MARUTI': 12500
+  };
+
+  const sendMockData = (sym) => {
+    const price = mockPrices[sym] || 1000;
+    res.json({
+      symbol: sym,
+      currentPrice: price,
+      previousClose: parseFloat((price * 0.98).toFixed(2)),
+      change: parseFloat((price * 0.02).toFixed(2)),
+      changePercent: '2.00',
+      currency: 'INR',
+      marketState: 'CLOSED',
+      note: 'Mock data - Live API unavailable'
+    });
+  };
+
   try {
-    const { symbol } = req.params;
-    
-    // Using Yahoo Finance API (free)
-    const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.NS`);
-    
-    if (response.data.chart.result && response.data.chart.result.length > 0) {
-      const result = response.data.chart.result[0];
-      const currentPrice = result.meta.regularMarketPrice;
-      const previousClose = result.meta.chartPreviousClose;
-      
-      res.json({
+    // Map symbols to correct Yahoo Finance tickers
+    const symbolMap = {
+      'NIFTY50': '^NSEI',
+      'SENSEX':  '^BSESN'
+    };
+
+    let yahooTicker = symbolMap[upperSymbol] || `${upperSymbol}.NS`;
+
+    // Use Yahoo Finance v7 quote API — simple and reliable
+    const response = await axios.get('https://query1.finance.yahoo.com/v7/finance/quote', {
+      params: { symbols: yahooTicker },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
+      },
+      timeout: 6000
+    });
+
+    const quotes = response.data?.quoteResponse?.result;
+    if (quotes && quotes.length > 0) {
+      const q = quotes[0];
+      const currentPrice  = q.regularMarketPrice   || q.ask || 0;
+      const previousClose = q.regularMarketPreviousClose || currentPrice;
+      const change        = currentPrice - previousClose;
+      const changePercent = previousClose > 0
+        ? ((change / previousClose) * 100).toFixed(2)
+        : '0.00';
+
+      return res.json({
         symbol: symbol,
-        currentPrice: currentPrice,
-        previousClose: previousClose,
-        change: currentPrice - previousClose,
-        changePercent: ((currentPrice - previousClose) / previousClose * 100).toFixed(2),
-        currency: result.meta.currency,
-        marketState: result.meta.marketState
-      });
-    } else {
-      // Fallback to mock data if API fails
-      const mockPrices = {
-        'RELIANCE': 2800,
-        'TCS': 3200,
-        'HDFC': 1750,
-        'INFY': 1500,
-        'SBIN': 600
-      };
-      
-      const price = mockPrices[symbol.toUpperCase()] || 1000;
-      res.json({
-        symbol: symbol,
-        currentPrice: price,
-        previousClose: price * 0.98,
-        change: price * 0.02,
-        changePercent: '2.00',
-        currency: 'INR',
-        marketState: 'CLOSED',
-        note: 'Mock data - API unavailable'
+        currentPrice,
+        previousClose,
+        change: parseFloat(change.toFixed(2)),
+        changePercent,
+        currency: q.currency || 'INR',
+        marketState: q.marketState || 'CLOSED'
       });
     }
+
+    sendMockData(upperSymbol);
   } catch (error) {
-    console.error('Stock price API error:', error.message);
-    res.status(500).json({ error: 'Failed to fetch stock price' });
+    console.error(`Stock price API error for ${symbol}:`, error.message);
+    sendMockData(upperSymbol);
   }
 });
 
