@@ -596,6 +596,9 @@ app.get('/api/market-news', async (req, res) => {
 });
 
 // Routes
+app.get('/', (req, res) => {
+  res.send('InvestIQ Backend API is running successfully! 📈');
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 
