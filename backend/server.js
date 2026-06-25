@@ -7,9 +7,9 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 // MongoDB Connection
-const mongoURI = process.env.MONGO_URI;
+const mongoURI = process.env.MONGO_URI || process.env.MONGO_URL;
 if (!mongoURI) {
-  console.error('❌ ERROR: MONGO_URI environment variable is not defined!');
+  console.error('❌ ERROR: MONGO_URI (or MONGO_URL) environment variable is not defined!');
   console.error('Please configure MONGO_URI in your environment variables.');
 } else {
   mongoose.connect(mongoURI).then(async () => {
