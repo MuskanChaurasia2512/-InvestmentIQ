@@ -29,10 +29,7 @@ services:
     plan: free
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: share-market-backend
-          property: host
+        value: https://investmentiq.onrender.com
     routes:
       - type: rewrite
         src: /*
