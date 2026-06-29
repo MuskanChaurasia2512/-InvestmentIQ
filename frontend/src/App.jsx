@@ -14,6 +14,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const UserProfile = lazy(() => import('./pages/UserProfile'));
 const News = lazy(() => import('./pages/News'));
 const Auth = lazy(() => import('./pages/Auth'));
+const DetailedProfile = lazy(() => import('./pages/DetailedProfile'));
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -84,8 +85,8 @@ function App() {
             {activeTab === 'settings' && <Settings theme={theme} setTheme={setTheme} />}
             {activeTab === 'profile' && <Profile onLogout={handleLogout} user={user} setActiveTab={setActiveTab} />}
             {activeTab === 'user-profile' && <UserProfile onLogout={handleLogout} user={user} />}
-          </Suspense>
             {activeTab === 'detailed-profile' && <DetailedProfile onLogout={handleLogout} user={user} />}
+          </Suspense>
           </main>
         </div>
       </div>

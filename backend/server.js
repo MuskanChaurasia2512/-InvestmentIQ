@@ -5,6 +5,7 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 // MongoDB Connection
 const mongoURI = process.env.MONGO_URI || process.env.MONGO_URL;
@@ -17,10 +18,11 @@ if (!mongoURI) {
     // Initialize demo user if not exists
     const demoExists = await User.findOne({ email: 'demo@groww.com' });
     if (!demoExists) {
+      const hashedDemoPass = await bcrypt.hash('demo123', 10);
       await new User({
         name: 'Demo User',
         email: 'demo@groww.com',
-        password: 'demo123',
+        password: hashedDemoPass,
       }).save();
       console.log('Demo user created: demo@groww.com / demo123');
     }
@@ -60,8 +62,31 @@ const Transaction = mongoose.model('Transaction', TransactionSchema);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// ── CORS Configuration ────────────────────────────────────────────────────────
+// FRONTEND_URL env variable mein apna Vercel URL set karo (Render Dashboard pe)
+const allowedOrigins = [
+  process.env.FRONTEND_URL,               // Vercel production URL
+  'http://localhost:5173',                 // Local development
+  'http://localhost:3000',
+].filter(Boolean); // undefined values hata do
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked for origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+// ──────────────────────────────────────────────────────────────────────────────
+
 app.use(express.json());
 
 // ── Nodemailer transporter setup ──────────────────────────────────────────────
@@ -130,11 +155,12 @@ app.post('/api/signup', async (req, res) => {
     
     if (!name || !email || !password) return res.status(400).json({ msg: 'Please enter all fields (Name, Email, Password).' });
     
-    // Format validation is usually frontend, but server-side safety checks
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'Email already registered. Please Login.' });
     
-    user = new User({ name: name || 'User', email, password });
+    // 🔐 Password hash karo — plain text kabhi store mat karo
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user = new User({ name: name || 'User', email, password: hashedPassword });
     await user.save();
     
     sendWelcomeEmail(email, user.name);
@@ -154,14 +180,15 @@ app.post('/api/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ msg: 'Email not found! Please check or sign up first.' });
     
-    // Check strict password match
-    if (user.password !== password) return res.status(400).json({ msg: 'Invalid Password. Please try again.' });
+    // 🔐 bcrypt se password compare karo (secure way)
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: 'Invalid Password. Please try again.' });
     
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     
-    // Return explicit success message as requested
     res.json({ msg: 'Login fully successful', token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ msg: 'Server error during login' });
   }
 });

@@ -18,6 +18,12 @@ services:
         sync: false
       - key: EMAIL_PASS
         sync: false
+      - key: GNEWS_API_KEY
+        sync: false
+      # IMPORTANT: Ye variable manually Render Dashboard pe set karo
+      # Apna Vercel frontend URL yahan daalo (e.g. https://your-app.vercel.app)
+      - key: FRONTEND_URL
+        sync: false
 
   # Frontend Static Site
   - type: web
@@ -28,8 +34,11 @@ services:
     rootDir: frontend
     plan: free
     envVars:
+      # IMPORTANT: Yahan apna actual Render backend URL daalo
+      # Render Dashboard mein jaao → share-market-backend → Copy URL
+      # Example: https://share-market-backend.onrender.com
       - key: VITE_API_URL
-        value: https://investmentiq.onrender.com
+        sync: false
     routes:
       - type: rewrite
         src: /*
